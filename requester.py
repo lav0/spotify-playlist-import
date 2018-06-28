@@ -3,6 +3,18 @@ import json
 from cacher import dump_data, load_data
 
 
+def get_me(access_token):
+    session = requests.Session()
+    method = 'GET'
+    url = 'https://api.spotify.com/v1/me'
+    headers = {'Accept': 'application/json'}
+    headers['Content-Type'] = 'application/json'
+    headers['Authorization'] = 'Bearer {0}'.format(access_token)
+    response = session.request(method, url, headers=headers)
+    print response.status_code
+    return response.json()
+
+
 class SpotifyCaller:
     def __init__(self, username, access_token):
         self.username = username

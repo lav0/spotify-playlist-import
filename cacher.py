@@ -9,7 +9,9 @@ def dump_access_token(username, token, expires_in):
 
     tokens_file_name = 'secret\\tokens.json'
     with open(tokens_file_name, 'w') as file:
-        json.dump({username: token, 'expires_in': expires_in, 'acquired_at': str(datetime.datetime.now())}, file)
+        data = []
+        data.append({'username': username, 'token': token, 'expires_in': expires_in, 'acquired_at': str(datetime.datetime.now())})
+        json.dump(data, file)
 
 def load_access_token(username):
     tokens_file_name = 'secret\\tokens.json'
@@ -17,10 +19,28 @@ def load_access_token(username):
         with open(tokens_file_name, 'r') as file:
             data = json.load(file)
             if data is not None:
-                acquired_at = datetime.datetime.strptime(data['acquired_at'], '%Y-%m-%d %H:%M:%S.%f')
-                time_elapsed = datetime.datetime.now() - acquired_at
-                if time_elapsed.total_seconds() < data['expires_in']:
-                    return data[username]
+                for entry in data:
+                    if entry['username'] == username:
+                        acquired_at = datetime.datetime.strptime(entry['acquired_at'], '%Y-%m-%d %H:%M:%S.%f')
+                        time_elapsed = datetime.datetime.now() - acquired_at
+                        if time_elapsed.total_seconds() < entry['expires_in']:
+                            return entry['token']
+    return None
+
+def load_last_acquired_user():
+    tokens_file_name = 'secret\\tokens.json'
+    if os.path.isfile(tokens_file_name):
+        with open(tokens_file_name, 'r') as file:
+            data = json.load(file)
+            if data is not None:
+                last_acquired_time = datetime.datetime(year=2018, month=1, day=1)
+                last_acquired_user = None
+                for entry in data:
+                    acquired_at = datetime.datetime.strptime(entry['acquired_at'], '%Y-%m-%d %H:%M:%S.%f')
+                    if last_acquired_time < acquired_at:
+                        last_acquired_time = acquired_at
+                        last_acquired_user = entry['username']
+                return last_acquired_user
     return None
 
 def dump_data(spotify_data_type, spotify_data_id, username, data):
