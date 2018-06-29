@@ -1,10 +1,13 @@
 import os
 
-def write_as_csv(playlist_name, tracks):
+def write_as_csv(username, playlist_name, tracks):
     output_dir = 'output'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    file_name = output_dir + '\\' + playlist_name + '.csv'
+    output_dir_user = output_dir + '\\' + username
+    if not os.path.exists(output_dir_user):
+        os.makedirs(output_dir_user)
+    file_name = output_dir_user + '\\' + playlist_name + '.csv'
     with open(file_name, 'w') as export_file:
         template_str = "{0}, {1}, {2}, {3}\n"
         export_file.write(template_str.format('title', 'artist', 'album', 'featuring artists'))

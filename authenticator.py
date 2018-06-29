@@ -2,11 +2,10 @@ import requests
 import json
 import requester
 from oauth2 import SpotifyOAuth
-from cacher import load_access_token, load_last_acquired_user, dump_access_token
+from cacher import load_access_token, dump_access_token
 import six.moves.urllib.parse as urllibparse
 
 client_id_and_secret = None
-# my_user_id = '214uc47fxa56xsnfn6aguxxry'
 
 scope = 'playlist-read-private, user-read-private'
 
@@ -32,28 +31,36 @@ def get_redirect_uri():
         read_client_id_and_secret()
     return client_id_and_secret['redirect_uri']
 
-def get_username(access_token):
-    user_data = requester.get_me(access_token)
-    split_user_data = user_data['uri'].split(':')
-    username = split_user_data[2] if len(split_user_data) > 1 else None
+class userDataProvider:
+    def __init__(self, access_token):
+        self.user_data = requester.get_me(access_token)
 
-    if username is None:
-        print('cannot get username')
-    return username
+    def get_username(self):
+        split_user_data = self.user_data['uri'].split(':')
+        username = split_user_data[2] if len(split_user_data) > 1 else None
 
-def get_access_token():
+        if username is None:
+            print('cannot get username')
+        return username
+
+    def get_display_name(self):
+        if 'display_name' not in self.user_data.keys():
+            return None
+        return self.user_data['display_name']
+
+
+def get_access_token(username, url_taker, auth_giver):
     sp_oauth = SpotifyOAuth(client_id=get_client_id(),
                             client_secret=get_client_secret(),
                             redirect_uri=get_redirect_uri(),
                             scope=scope,
-                            cache_path='secret\\',
+                            cache_path='secret\\'
                             )
 
-    username = load_last_acquired_user()
     if username is not None:
         access_token = load_access_token(username)
         if access_token is not None:
-            return access_token, username
+            return access_token, userDataProvider(access_token)
 
     print('''
 
@@ -67,20 +74,12 @@ def get_access_token():
 
     auth_url = sp_oauth.get_authorize_url()
 
-    try:
-        import webbrowser
-        webbrowser.open(auth_url)
-        print("Opened %s in your browser" % auth_url)
-    except:
-        print("Please navigate here: %s" % auth_url)
+    url_taker.take(auth_url)
 
     print()
     print()
 
-    try:
-        response = raw_input("Enter the URL you were redirected to: ")
-    except NameError:
-        response = input("Enter the URL you were redirected to: ")
+    response = auth_giver.give()
 
     print()
     print()
@@ -95,7 +94,7 @@ def get_access_token():
         print(token_info['expires_in'])
 
     token = token_info['access_token']
-    username = get_username(token)
-    dump_access_token(username=username, token=token, expires_in=token_info['expires_in'])
+    user_data_provider = userDataProvider(token)
+    dump_access_token(username=user_data_provider.get_username(), token=token, expires_in=token_info['expires_in'])
 
-    return token, username
+    return token, user_data_provider

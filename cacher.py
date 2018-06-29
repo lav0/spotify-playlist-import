@@ -11,7 +11,7 @@ def dump_access_token(username, token, expires_in):
     with open(tokens_file_name, 'w') as file:
         data = []
         data.append({'username': username, 'token': token, 'expires_in': expires_in, 'acquired_at': str(datetime.datetime.now())})
-        json.dump(data, file)
+        json.dump(data, file, indent=2)
 
 def load_access_token(username):
     tokens_file_name = 'secret\\tokens.json'
