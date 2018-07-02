@@ -34,6 +34,9 @@ class playlistExporter:
         self.spotify_caller = SpotifyCaller(self.username, self.access_token)
         self.playlists = []
 
+    def is_successful(self):
+        return self.name_provider.is_successful()
+
     def get_username(self):
         return self.username
 

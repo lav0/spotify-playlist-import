@@ -33,7 +33,14 @@ def get_redirect_uri():
 
 class userDataProvider:
     def __init__(self, access_token):
-        self.user_data = requester.get_me(access_token)
+        try:
+            self.user_data = requester.get_me(access_token)
+            self.success = True
+        except:
+            self.success = False
+
+    def is_successful(self):
+        return self.success
 
     def get_username(self):
         split_user_data = self.user_data['uri'].split(':')
