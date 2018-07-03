@@ -1,4 +1,5 @@
 import os
+import io
 
 def write_as_csv(username, playlist_name, tracks):
     output_dir = 'output'
@@ -9,8 +10,8 @@ def write_as_csv(username, playlist_name, tracks):
         os.makedirs(output_dir_user)
     file_name = output_dir_user + '\\' + playlist_name + '.csv'
     with open(file_name, 'w') as export_file:
-        template_str = "{0}, {1}, {2}, {3}\n"
-        export_file.write(template_str.format('title', 'artist', 'album', 'featuring artists'))
+        template_str = u'{0}, {1}, {2}, {3}\n'
+        export_file.write(template_str.format(u'title', u'artist', u'album', u'featuring artists'))
         for track in tracks:
             main_artist = track['artists'][0]['name']
             main_artist = "".join(main_artist.split(","))

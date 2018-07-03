@@ -44,9 +44,13 @@ class playlistExporter:
         disp_name = self.name_provider.get_display_name()
         return self.username if disp_name is None else disp_name
 
-    def get_praylists(self):
-        self.playlists = self.spotify_caller.get_playlists()
-        return [p['name'] for p in self.playlists]
+    def get_playlists(self):
+        if len(self.playlists) == 0:
+            self.playlists = self.spotify_caller.get_playlists()
+        return self.playlists
+
+    def get_playlists_names(self):
+        return [p['name'] for p in self.get_playlists()]
 
     def get_export_file(self, playlist_number_to_export):
         playlist_name = self.spotify_caller.get_playlist_name(playlist_number_to_export)

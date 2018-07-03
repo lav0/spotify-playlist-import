@@ -1,9 +1,11 @@
 import sys
+import io
 import telepot
 import time
 import json
 import threading
 import export_playlist
+import cacher # tmp
 
 
 activeListeners = dict()
@@ -33,10 +35,12 @@ class TelegramListener:
         print('listerner: basic init finished. chat:{0}'.format(chat_id))
 
     def _acquire_access_token(self):
-        self.exporter = export_playlist.playlistExporter(None, self, self)
+        user = cacher.load_last_acquired_user()
+        self.exporter = export_playlist.playlistExporter(user, self, self)
         self.spotify_user_id = self.exporter.get_username()
         if self.exporter.is_successful():
             print('authorized successfully')
+            self.state = ExportSessionState.SelectPlaylist
 
     def _send_msg(self, message, disable_preview = False):
         # with threading.Lock():
@@ -52,7 +56,6 @@ class TelegramListener:
                        "After you logged in, copy the link you're redirected to"
                         .format(self.current_platform, auth_url), True)
 
-
     def give(self):
         while self.state == ExportSessionState.Login:
             time.sleep(1)
@@ -61,19 +64,20 @@ class TelegramListener:
 
     def show_playlists(self):
         self.acquire_thread.join()
-        msg = "Select a playlist to export:\n" + \
-               '\n'.join([str(i+1) + ' ' + p for i, p in enumerate(self.exporter.get_praylists())])
+        msg = "Select a playlist to export (number or /all) :\n" + \
+               '\n'.join([str(i+1) + ' ' + p for i, p in enumerate(self.exporter.get_playlists_names())])
         self.bot.sendMessage(self.chat_id, msg)
 
     def give_the_playlist(self, number):
         file_directory = self.exporter.get_export_file(number)
-        print("telegram: give the playlist", file_directory)
-        with open(file_directory, 'r') as file:
-            print("file opened")
-            self.bot.sendDocument(self.chat_id, file)
-            print("file sent")
-        self.state = ExportSessionState.Continue
-        self._send_msg("Export another playlist? (/yes /all /no or number)")
+        # under develompent
+        with io.open("unicode_inside.txt", 'r', encoding='utf8') as file:
+            print("give the playlist: about to send file:", file_directory)
+            try:
+                what = self.bot.sendDocument(self.chat_id, file)
+            except Exception as e:
+                print(e.message)
+
 
     def hear_command(self, command):
         if command == '/login' or command == '/start':
@@ -82,7 +86,13 @@ class TelegramListener:
             if self.state == ExportSessionState.SelectPlaylist:
                 self.show_playlists()
         elif command == '/all':
-            pass
+            if self.state == ExportSessionState.SelectPlaylist:
+                for number in range(len(self.exporter.get_playlists())):
+                    self.give_the_playlist(number)
+        elif command == '/yes':
+            if self.state == ExportSessionState.Continue:
+                self.state = ExportSessionState.SelectPlaylist
+                self.show_playlists()
         elif command == '/finish' or command == '/no':
             pass
         else:
@@ -91,14 +101,15 @@ class TelegramListener:
     def hear_word(self, word):
         if word[0:4] == 'http':
             self.auth_response = word
-            self.state = ExportSessionState.SelectPlaylist
         else:
             try:
-                number_of_playlists = len(self.exporter.playlists)
+                number_of_playlists = len(self.exporter.get_playlists())
                 selected_playlist = int(word)
                 if selected_playlist >= number_of_playlists:
                     raise ValueError("Selected playlist number is out of range")
                 self.give_the_playlist(selected_playlist)
+                self.state = ExportSessionState.Continue
+                self._send_msg("Export another playlist? (/yes /all /no or number)")
             except ValueError:
                 pass
 
@@ -123,6 +134,9 @@ def handle(message):
 bot = telepot.Bot(bot_id)
 bot.message_loop(handle)
 print 'I am listening ...'
+with io.open("unicode_inside.txt", 'r', encoding='utf8') as file:
+    print("about to send the file")
+    what = bot.sendDocument(70943200, file)
 
 complete_stop = False
 while True:
