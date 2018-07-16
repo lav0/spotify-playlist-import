@@ -25,7 +25,7 @@ class authTokenGiver():
         return response
 
 
-class playlistExporter:
+class PlaylistExporter:
     def __init__(self, username, auth_url_taker=authUrlTaker(), auth_token_giver=authTokenGiver()):
         token, name_provider = authenticator.get_access_token(username, auth_url_taker, auth_token_giver)
         self.access_token = token

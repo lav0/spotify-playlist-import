@@ -36,7 +36,7 @@ class TelegramListener:
 
     def _acquire_access_token(self):
         user = cacher.load_last_acquired_user()
-        self.exporter = export_playlist.playlistExporter(user, self, self)
+        self.exporter = export_playlist.PlaylistExporter(user, self, self)
         self.spotify_user_id = self.exporter.get_username()
         if self.exporter.is_successful():
             print('authorized successfully')

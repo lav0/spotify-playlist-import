@@ -17,6 +17,9 @@ class PlaylistExportState(object):
     def change_state(self, communicator, state):
         communicator._change_state(state)
 
+    def is_authorized(self):
+        return False
+
     def login_start(self, communicator):
         pass
 
@@ -44,16 +47,14 @@ class LoginState(PlaylistExportState):
 
     def _acquire_access_token(self):
         user = cacher.load_last_acquired_user()
-
-        # tmp
-        user = None
-        #
-
-        self.exporter = export_playlist.playlistExporter(user, self, self)
+        self.exporter = export_playlist.PlaylistExporter(user, self, self)
         self.spotify_user_id = self.exporter.get_username()
         if self.exporter.is_successful():
             print('authorized successfully')
             self.authorized = True
+
+    def is_authorized(self):
+        return self.authorized
 
     def login_start(self, communicator):
         self.acquire_thread = threading.Thread(target=self._acquire_access_token)

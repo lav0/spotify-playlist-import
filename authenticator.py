@@ -9,27 +9,32 @@ client_id_and_secret = None
 
 scope = 'playlist-read-private, user-read-private'
 
+
 def read_client_id_and_secret():
     global client_id_and_secret
-    with open('secret\\secrets.json', 'r') as secret_file:
+    with open('secret//secrets.json', 'r') as secret_file:
         client_id_and_secret = json.load(secret_file)
     if client_id_and_secret is None:
         raise Exception("can't obtain client id and client secret")
+
 
 def get_client_id():
     if client_id_and_secret is None:
         read_client_id_and_secret()
     return client_id_and_secret['id']
 
+
 def get_client_secret():
     if client_id_and_secret is None:
         read_client_id_and_secret()
     return client_id_and_secret['secret']
 
+
 def get_redirect_uri():
     if client_id_and_secret is None:
         read_client_id_and_secret()
     return client_id_and_secret['redirect_uri']
+
 
 class userDataProvider:
     def __init__(self, access_token):

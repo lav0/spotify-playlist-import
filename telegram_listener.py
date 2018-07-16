@@ -18,6 +18,9 @@ class TelegramListener:
     def _send_msg(self, message, disable_preview = False):
         self.bot.sendMessage(self.chat_id, message, disable_web_page_preview=disable_preview)
 
+    def is_authorized(self):
+        return self.state.is_authorized(self)
+
     def login_start(self):
         self.state.login_start(self)
 
