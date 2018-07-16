@@ -9,7 +9,7 @@ def write_as_csv(username, playlist_name, tracks):
     if not os.path.exists(output_dir_user):
         os.makedirs(output_dir_user)
     file_name = output_dir_user + '\\' + playlist_name + '.csv'
-    with open(file_name, 'w') as export_file:
+    with io.open(file_name, 'w', encoding='utf8') as export_file:
         template_str = u'{0}, {1}, {2}, {3}\n'
         export_file.write(template_str.format(u'title', u'artist', u'album', u'featuring artists'))
         for track in tracks:

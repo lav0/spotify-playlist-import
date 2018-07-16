@@ -95,7 +95,7 @@ def get_access_token(username, url_taker, auth_giver):
     token_info = sp_oauth.get_access_token(code)
 
     if not token_info:
-        print "can't get token"
+        print("can't get token")
     else:
         print(token_info['access_token'])
         print(token_info['expires_in'])

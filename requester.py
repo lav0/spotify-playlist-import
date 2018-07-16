@@ -11,7 +11,7 @@ def get_me(access_token):
     headers['Content-Type'] = 'application/json'
     headers['Authorization'] = 'Bearer {0}'.format(access_token)
     response = session.request(method, url, headers=headers)
-    print response.status_code
+    print(response.status_code)
     return response.json()
 
 

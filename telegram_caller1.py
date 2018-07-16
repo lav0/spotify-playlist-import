@@ -134,9 +134,6 @@ def handle(message):
 bot = telepot.Bot(bot_id)
 bot.message_loop(handle)
 print 'I am listening ...'
-with io.open("unicode_inside.txt", 'r', encoding='utf8') as file:
-    print("about to send the file")
-    what = bot.sendDocument(70943200, file)
 
 complete_stop = False
 while True:
