@@ -26,7 +26,7 @@ class PlaylistExportState(object):
     def show_playlists(self, communicator):
         pass
 
-    def give_playlist(self, number, communicator):
+    def all(self, communicator):
         pass
 
     def hear(self, communicator, word):
@@ -102,7 +102,7 @@ class ExportingState(PlaylistExportState):
         super().__init__(bot, chat_id, exporter)
         self._send_msg('Use number or /all')
 
-    def give_playlist(self, number, communicator):
+    def _give_playlist(self, number):
         file_directory = self.exporter.get_export_file(number)
         with open(file_directory, 'r') as file:
             print("give the playlist: about to send file:", file_directory)
@@ -117,6 +117,25 @@ class ExportingState(PlaylistExportState):
             selected_playlist = int(word)
             if selected_playlist >= number_of_playlists:
                 raise ValueError("Selected playlist number is out of range")
-            self.give_playlist(selected_playlist, communicator)
+            self._give_playlist(selected_playlist)
+            next_state = ContinueState(self.bot, self.chat_id, self.exporter)
+            super().change_state(communicator, next_state)
         except ValueError:
             pass
+
+    def all(self, communicator):
+        playlists_count = len(self.exporter.get_playlists())
+        if playlists_count == 0:
+            self._send_msg("It seems that you've got no playlists on {}".format(self.current_platform))
+        else:
+            for number in range(playlists_count):
+                self._give_playlist(number)
+
+        next_state = ContinueState(self.bot, self.chat_id, self.exporter)
+        super().change_state(communicator, next_state)
+
+
+class ContinueState(PlaylistExportState):
+    def __init__(self, bot, chat_id, exporter):
+        super().__init__(bot, chat_id, exporter)
+        print("Entered ContinueState")

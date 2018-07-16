@@ -31,6 +31,8 @@ def handle(message):
             activeListeners[chat_id].login_start()
         elif command == '/show_playlists':
             activeListeners[chat_id].show_playlists()
+        elif command == '/all':
+            activeListeners[chat_id].all()
     else:
         activeListeners[chat_id].hear_word(command)
 

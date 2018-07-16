@@ -29,3 +29,6 @@ class TelegramListener:
 
     def show_playlists(self):
         self.state.show_playlists(self)
+
+    def all(self):
+        self.state.all(self)
