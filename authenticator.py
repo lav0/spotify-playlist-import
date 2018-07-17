@@ -61,6 +61,14 @@ class userDataProvider:
         return self.user_data['display_name']
 
 
+def try_load_access_token(username):
+    if username is not None:
+        access_token = load_access_token(username)
+        if access_token is not None:
+            return access_token, userDataProvider(access_token)
+    return None
+
+
 def get_access_token(username, url_taker, auth_giver):
     sp_oauth = SpotifyOAuth(client_id=get_client_id(),
                             client_secret=get_client_secret(),
@@ -68,11 +76,6 @@ def get_access_token(username, url_taker, auth_giver):
                             scope=scope,
                             cache_path='secret\\'
                             )
-
-    if username is not None:
-        access_token = load_access_token(username)
-        if access_token is not None:
-            return access_token, userDataProvider(access_token)
 
     print('''
 

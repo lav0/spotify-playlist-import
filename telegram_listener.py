@@ -1,9 +1,9 @@
 import export_playlist
-from playlist_export_state import LoginState
+from playlist_export_state import TryLoadAccesTokenState
 
 class TelegramListener:
     def __init__(self, t_bot, chat_id):
-        self.state = LoginState(t_bot, chat_id)
+        self.state = TryLoadAccesTokenState(t_bot, chat_id)
         # self.spotify_user_id = None
         # self.current_platform = "Spotify"
         # self.auth_response = None

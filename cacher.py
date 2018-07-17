@@ -43,7 +43,10 @@ def load_last_acquired_user():
     tokens_file_name = get_tokens_file_name()
     if os.path.isfile(tokens_file_name):
         with open(tokens_file_name, 'r') as file:
-            data = json.load(file)
+            try:
+                data = json.load(file)
+            except ValueError:
+                data = None
             if data is not None:
                 last_acquired_time = datetime.datetime(year=2018, month=1, day=1)
                 last_acquired_user = None

@@ -29,20 +29,25 @@ class PlaylistExporter:
     def __init__(self, username, auth_url_taker=authUrlTaker(), auth_token_giver=authTokenGiver()):
         token, name_provider = authenticator.get_access_token(username, auth_url_taker, auth_token_giver)
         self.access_token = token
-        self.username = name_provider.get_username()
         self.name_provider = name_provider
-        self.spotify_caller = SpotifyCaller(self.username, self.access_token)
+        self.spotify_caller = SpotifyCaller(self.get_username(), self.access_token)
+        self.playlists = []
+
+    def __init__(self, token, name_provider):
+        self.access_token = token
+        self.name_provider = name_provider
+        self.spotify_caller = SpotifyCaller(self.get_username(), self.access_token)
         self.playlists = []
 
     def is_successful(self):
         return self.name_provider.is_successful()
 
     def get_username(self):
-        return self.username
+        return self.name_provider.get_username()
 
     def get_display_name(self):
         disp_name = self.name_provider.get_display_name()
-        return self.username if disp_name is None else disp_name
+        return self.get_username() if disp_name is None else disp_name
 
     def get_playlists(self):
         if len(self.playlists) == 0:

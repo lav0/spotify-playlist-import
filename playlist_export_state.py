@@ -1,7 +1,8 @@
 import threading
 import time
-import export_playlist
 import cacher
+from authenticator import try_load_access_token
+from export_playlist import PlaylistExporter
 
 
 class PlaylistExportState(object):
@@ -17,7 +18,7 @@ class PlaylistExportState(object):
     def change_state(self, communicator, state):
         communicator._change_state(state)
 
-    def is_authorized(self):
+    def is_authorized(self, communicator):
         return False
 
     def login_start(self, communicator):
@@ -37,6 +38,22 @@ class PlaylistExportState(object):
         pass
 
 
+class TryLoadAccesTokenState(PlaylistExportState):
+    def __init__(self, bot, chat_id):
+        super().__init__(bot, chat_id)
+
+    def login_start(self, communicator):
+        user = cacher.load_last_acquired_user()
+        answer = try_load_access_token(user)
+        if answer is None:
+            next_state = LoginState(self.bot, self.chat_id)
+        else:
+            token, name_provider = answer
+            self.exporter = PlaylistExporter(token, name_provider)
+            next_state = SelectPlaylistState(self.bot, self.chat_id, self.exporter)
+        super().change_state(communicator, next_state)
+
+
 class LoginState(PlaylistExportState):
     def __init__(self, bot, chat_id):
         super(LoginState, self).__init__(bot, chat_id)
@@ -46,14 +63,13 @@ class LoginState(PlaylistExportState):
         self._send_msg('Use /start')
 
     def _acquire_access_token(self):
-        user = cacher.load_last_acquired_user()
-        self.exporter = export_playlist.PlaylistExporter(user, self, self)
+        self.exporter = PlaylistExporter(None, self, self)
         self.spotify_user_id = self.exporter.get_username()
         if self.exporter.is_successful():
             print('authorized successfully')
             self.authorized = True
 
-    def is_authorized(self):
+    def is_authorized(self, communicator):
         return self.authorized
 
     def login_start(self, communicator):
