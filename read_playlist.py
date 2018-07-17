@@ -3,7 +3,7 @@ from cacher import dump_data, load_last_acquired_user
 
 
 user = load_last_acquired_user()
-exporter = export_playlist.PlaylistExporter(user)
+exporter = export_playlist.PlaylistExporter()
 print('\n'.join([str(i+1) + ' ' + p for i, p in enumerate(exporter.get_playlists_names())]))
 print()
 playlist_number_to_export = 0

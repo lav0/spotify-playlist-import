@@ -69,7 +69,7 @@ def try_load_access_token(username):
     return None
 
 
-def get_access_token(username, url_taker, auth_giver):
+def get_access_token(url_taker, auth_giver):
     sp_oauth = SpotifyOAuth(client_id=get_client_id(),
                             client_secret=get_client_secret(),
                             redirect_uri=get_redirect_uri(),

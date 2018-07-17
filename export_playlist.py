@@ -26,16 +26,18 @@ class authTokenGiver():
 
 
 class PlaylistExporter:
-    def __init__(self, username, auth_url_taker=authUrlTaker(), auth_token_giver=authTokenGiver()):
-        token, name_provider = authenticator.get_access_token(username, auth_url_taker, auth_token_giver)
-        self.access_token = token
-        self.name_provider = name_provider
-        self.spotify_caller = SpotifyCaller(self.get_username(), self.access_token)
-        self.playlists = []
-
-    def __init__(self, token, name_provider):
-        self.access_token = token
-        self.name_provider = name_provider
+    def __init__(self,
+                 token=None,
+                 name_provider=None,
+                 auth_url_taker=authUrlTaker(),
+                 auth_token_giver=authTokenGiver()):
+        if token is None or name_provider is None:
+            token, name_provider = authenticator.get_access_token(auth_url_taker, auth_token_giver)
+            self.access_token = token
+            self.name_provider = name_provider
+        else:
+            self.access_token = token
+            self.name_provider = name_provider
         self.spotify_caller = SpotifyCaller(self.get_username(), self.access_token)
         self.playlists = []
 

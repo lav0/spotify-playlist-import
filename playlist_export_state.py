@@ -49,7 +49,7 @@ class TryLoadAccesTokenState(PlaylistExportState):
             next_state = LoginState(self.bot, self.chat_id)
         else:
             token, name_provider = answer
-            self.exporter = PlaylistExporter(token, name_provider)
+            self.exporter = PlaylistExporter(token=token, name_provider=name_provider)
             next_state = SelectPlaylistState(self.bot, self.chat_id, self.exporter)
         super().change_state(communicator, next_state)
 
@@ -63,7 +63,7 @@ class LoginState(PlaylistExportState):
         self._send_msg('Use /start')
 
     def _acquire_access_token(self):
-        self.exporter = PlaylistExporter(None, self, self)
+        self.exporter = PlaylistExporter(auth_url_taker=self, auth_token_giver=self)
         self.spotify_user_id = self.exporter.get_username()
         if self.exporter.is_successful():
             print('authorized successfully')
