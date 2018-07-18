@@ -2,7 +2,7 @@ import requests
 import json
 import requester
 from oauth2 import SpotifyOAuth
-from cacher import load_access_token, dump_access_token
+from cacher import load_access_token
 import six.moves.urllib.parse as urllibparse
 
 client_id_and_secret = None
@@ -110,6 +110,5 @@ def get_access_token(url_taker, auth_giver):
 
     token = token_info['access_token']
     user_data_provider = userDataProvider(token)
-    dump_access_token(username=user_data_provider.get_username(), token=token, expires_in=token_info['expires_in'])
 
-    return token, user_data_provider
+    return token, user_data_provider, token_info['expires_in']

@@ -4,10 +4,10 @@ import json
 
 
 def get_tokens_file_name():
-    return 'secret//tokens.json'
+    return 'secret/tokens.json'
 
 
-def dump_access_token(username, token, expires_in):
+def dump_access_token(chat_id, username, token, expires_in):
     if not os.path.exists('secret'):
         os.makedirs('secret')
 
@@ -19,8 +19,9 @@ def dump_access_token(username, token, expires_in):
         try:
             data = json.load(file)
         except ValueError:
-            data = list()
-        data.append({'username': username, 'token': token, 'expires_in': expires_in, 'acquired_at': str(datetime.datetime.now())})
+            data = dict()
+        new_entry = {'username': username, 'token': token, 'expires_in': expires_in, 'acquired_at': str(datetime.datetime.now())}
+        data[chat_id] = new_entry
         json.dump(data, file, indent=2)
 
 
@@ -43,10 +44,7 @@ def load_last_acquired_user():
     tokens_file_name = get_tokens_file_name()
     if os.path.isfile(tokens_file_name):
         with open(tokens_file_name, 'r') as file:
-            try:
-                data = json.load(file)
-            except ValueError:
-                data = None
+            data = json.load(file)
             if data is not None:
                 last_acquired_time = datetime.datetime(year=2018, month=1, day=1)
                 last_acquired_user = None

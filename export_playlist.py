@@ -4,6 +4,7 @@ import playlist_writer
 from random import randint
 import authenticator
 from requester import SpotifyCaller
+from cacher import dump_access_token
 
 
 class authUrlTaker:
@@ -27,12 +28,14 @@ class authTokenGiver():
 
 class PlaylistExporter:
     def __init__(self,
+                 chat_id,
                  token=None,
                  name_provider=None,
                  auth_url_taker=authUrlTaker(),
                  auth_token_giver=authTokenGiver()):
         if token is None or name_provider is None:
-            token, name_provider = authenticator.get_access_token(auth_url_taker, auth_token_giver)
+            token, name_provider, expires_in = authenticator.get_access_token(auth_url_taker, auth_token_giver)
+            dump_access_token(chat_id=chat_id,username=name_provider.get_username(), token=token, expires_in=expires_in)
             self.access_token = token
             self.name_provider = name_provider
         else:
